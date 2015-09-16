@@ -30,10 +30,13 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	var addr = flag.String("addr", ":8080", "Address to serve application from")
+	var debug = flag.Bool("debug", false, "Turn on debugging")
 	flag.Parse()
 
 	r := newRoom()
-	r.tracer = trace.New(os.Stdout)
+	if *debug {
+		r.tracer = trace.New(os.Stdout)
+	}
 	http.Handle("/", &templateHandler{filename: "chat.html"})
 	http.Handle("/room", r)
 	// start the room for clients to connect to
