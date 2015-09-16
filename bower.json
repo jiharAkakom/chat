@@ -1,0 +1,21 @@
+{
+  "name": "chat",
+  "version": "0.0.0",
+  "homepage": "https://github.com/onufert/chat",
+  "authors": [
+    "Tyler Onufer <tyler.onufer@asti-usa.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "/static/vendors",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.5",
+    "jquery": "~2.1.4"
+  }
+}
