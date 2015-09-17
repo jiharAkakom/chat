@@ -18,6 +18,7 @@
     </form>
 
     <script src="/static/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="/static/vendors/datejs/build/date.js"></script>
     <script>
 
       $(function(){
@@ -48,10 +49,11 @@
             console.log("Connection has been closed.");
           }
           socket.onmessage = function(e) {
-            var msg = $.parseJSON(e.data)
+            var msg = $.parseJSON(e.data);
+            var t = Date.parse(msg.When)
             messages.append(
               $("<li>").append(
-                $("<strong>").text(msg.Name + ": "),
+                $("<strong>").text(msg.Name + "(" + t.format("h:m:s") + "):"),
                 $("<span>").text(msg.Message)
               )
             );
