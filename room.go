@@ -22,17 +22,25 @@ type room struct {
 	clients map[*client]bool
 	// logger
 	tracer trace.Tracer
+	//avatar
+	avatar Avatar
 }
 
 // Newroom Create a new chat room
-func newRoom() *room {
+func newRoom(avatar Avatar) *room {
 	return &room{
 		forward: make(chan *message),
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
 		tracer:  trace.Off(),
+		avatar:  avatar,
 	}
+}
+
+func (r *room) GetAvatarURL(c *client) (string, error) {
+	url, err := r.avatar.GetAvatarURL(c)
+	return url, err
 }
 
 func (r *room) run() {
