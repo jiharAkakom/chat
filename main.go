@@ -39,7 +39,7 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	var addr = flag.String("addr", ":8080", "Address to serve application from")
-	var debug = flag.Bool("debug", false, "Turn on debugging")
+	var debug = flag.Bool("debug", true, "Turn on debugging")
 	flag.Parse()
 
 	gomniauth.SetSecurityKey("some long key")
