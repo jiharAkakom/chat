@@ -15,7 +15,11 @@ import (
 	"github.com/stretchr/objx"
 )
 
-var avatars = UseFileSystem
+var avatars = TryAvatars{
+	UseFileSystem,
+	UseAuthAvatar,
+	UseGravatar,
+}
 
 // templ represents a single template
 type templateHandler struct {
