@@ -10,6 +10,9 @@ import (
 	"text/template"
 
 	"github.com/onufert/trace"
+	"github.com/stretchr/gomniauth"
+	"github.com/stretchr/gomniauth/providers/google"
+	"github.com/stretchr/objx"
 )
 
 // templ represents a single template
@@ -24,7 +27,13 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t.once.Do(func() {
 		t.templ = template.Must(template.ParseFiles(filepath.Join("templates", t.filename)))
 	})
-	t.templ.Execute(w, r)
+	data := map[string]interface{}{
+		"Host": r.Host,
+	}
+	if authCookie, err := r.Cookie("auth"); err == nil {
+		data["UserData"] = objx.MustFromBase64(authCookie.Value)
+	}
+	t.templ.Execute(w, data)
 }
 
 func main() {
@@ -33,11 +42,22 @@ func main() {
 	var debug = flag.Bool("debug", false, "Turn on debugging")
 	flag.Parse()
 
+	gomniauth.SetSecurityKey("some long key")
+	gomniauth.WithProviders(
+		google.New(googleClientID, googleClientSecret, "http://localhost:8080/auth/callback/google"),
+	)
+
 	r := newRoom()
 	if *debug {
 		r.tracer = trace.New(os.Stdout)
 	}
+	http.Handle("/static/",
+		http.StripPrefix("/static",
+			http.FileServer(http.Dir("static/"))))
 	http.Handle("/", &templateHandler{filename: "chat.html"})
+	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
+	http.Handle("/login", &templateHandler{filename: "login.html"})
+	http.HandleFunc("/auth/", loginHandler)
 	http.Handle("/room", r)
 	// start the room for clients to connect to
 	go r.run()
