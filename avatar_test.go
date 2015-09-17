@@ -5,20 +5,26 @@ import (
 	"os"
 	"path"
 	"testing"
+
+	gomniauthtest "github.com/stretchr/gomniauth/test"
 )
 
-func TestGetAvatarURL(t *testing.T) {
+func TestAuthAvatar(t *testing.T) {
 	var authAvatar AuthAvatar
-	client := new(client)
-	url, err := authAvatar.GetAvatarURL(client)
+	testUser := &gomniauthtest.TestUser{}
+	testUser.On("AvatarURL").Return("", ErrNoAvatarURL)
+	testChatUser := &chatUser{User: testUser}
+	url, err := authAvatar.GetAvatarURL(testChatUser)
 	if err != ErrNoAvatarURL {
 		t.Error("AuthAvatar.GetAvatarURL should return ErrNoAvatarURL when no value is present")
 	}
 
 	//set a Value
 	testURL := "http://url-to-gravatar"
-	client.userData = map[string]interface{}{"avatar_url": testURL}
-	url, err = authAvatar.GetAvatarURL(client)
+	testUser = &gomniauthtest.TestUser{}
+	testChatUser.User = testUser
+	testUser.On("AvatarURL").Return(testURL, nil)
+	url, err = authAvatar.GetAvatarURL(testChatUser)
 	if err != nil {
 		t.Error("AuthAvatar.GetAvatarURL should return without an error")
 	}
@@ -29,13 +35,12 @@ func TestGetAvatarURL(t *testing.T) {
 
 func TestGravatarAvatar(t *testing.T) {
 	var gravAvatar GravatarAvatar
-	client := new(client)
-	client.userData = map[string]interface{}{"userID": "0bc83cb571cd1c50ba6f3e8a78ef1346"}
-	url, err := gravAvatar.GetAvatarURL(client)
+	user := &chatUser{uniqueID: "abc"}
+	url, err := gravAvatar.GetAvatarURL(user)
 	if err != nil {
 		t.Error("GravatarAvatar should not return an error")
 	}
-	if url != "//www.gravatar.com/avatar/0bc83cb571cd1c50ba6f3e8a78ef1346" {
+	if url != "//www.gravatar.com/avatar/abc" {
 		t.Errorf("GravatarAvatar.GetAvatarURL wrongly returned %s", url)
 	}
 }
@@ -47,9 +52,8 @@ func TestFileSystemAvatar(t *testing.T) {
 	defer func() { os.Remove(filename) }()
 
 	var fileSystemAvatar FileSystemAvatar
-	client := new(client)
-	client.userData = map[string]interface{}{"userID": "abc"}
-	url, err := fileSystemAvatar.GetAvatarURL(client)
+	user := &chatUser{uniqueID: "abc"}
+	url, err := fileSystemAvatar.GetAvatarURL(user)
 	if err != nil {
 		t.Error("filesystemAvatar should no return an error")
 	}

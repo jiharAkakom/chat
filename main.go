@@ -15,6 +15,8 @@ import (
 	"github.com/stretchr/objx"
 )
 
+var avatars = UseFileSystem
+
 // templ represents a single template
 type templateHandler struct {
 	once     sync.Once
@@ -47,7 +49,7 @@ func main() {
 		google.New(googleClientID, googleClientSecret, "http://localhost:8080/auth/callback/google"),
 	)
 
-	r := newRoom(UseFileSystem)
+	r := newRoom()
 	if *debug {
 		r.tracer = trace.New(os.Stdout)
 	}
